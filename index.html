@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Windows XP Desktop</title>
+
+<style>
+body{
+margin:0;
+font-family:Tahoma,Verdana,sans-serif;
+background:linear-gradient(#4fa3ff,#2f7bd6);
+height:100vh;
+overflow:hidden;
+}
+
+/* Desktop */
+
+.desktop{
+position:relative;
+height:100%;
+}
+
+/* Icons */
+
+.icon{
+width:80px;
+text-align:center;
+color:white;
+font-size:12px;
+position:absolute;
+cursor:pointer;
+}
+
+.icon img{
+width:48px;
+height:48px;
+}
+
+/* Windows */
+
+.window{
+position:absolute;
+width:520px;
+background:#ece9d8;
+border:2px solid #083772;
+box-shadow:3px 3px 0 #00000055;
+display:none;
+}
+
+.title-bar{
+background:linear-gradient(#0a64d0,#0a3ea2);
+color:white;
+padding:6px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+cursor:move;
+font-weight:bold;
+}
+
+.title-buttons span{
+background:#c0c0c0;
+padding:2px 6px;
+cursor:pointer;
+}
+
+.content{
+padding:10px;
+background:white;
+height:300px;
+overflow:auto;
+}
+
+canvas{
+border:1px solid black;
+background:white;
+}
+
+/* Taskbar */
+
+.taskbar{
+position:fixed;
+bottom:0;
+width:100%;
+height:36px;
+background:linear-gradient(#245edb,#1941a5);
+display:flex;
+align-items:center;
+}
+
+.start-button{
+margin-left:6px;
+background:linear-gradient(#3ee23e,#169c16);
+color:white;
+padding:5px 12px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.task-buttons{
+display:flex;
+gap:5px;
+margin-left:10px;
+}
+
+.task-btn{
+background:#3c6edb;
+color:white;
+padding:4px 8px;
+font-size:12px;
+cursor:pointer;
+}
+
+.clock{
+margin-left:auto;
+margin-right:10px;
+color:white;
+font-size:12px;
+}
+
+/* Start Menu */
+
+.start-menu{
+position:fixed;
+bottom:36px;
+left:6px;
+width:420px;
+background:#ece9d8;
+border:2px solid #083772;
+display:none;
+}
+
+.start-header{
+background:linear-gradient(#0a64d0,#0a3ea2);
+color:white;
+padding:10px;
+font-weight:bold;
+}
+
+.menu-item{
+padding:6px;
+cursor:pointer;
+}
+
+.menu-item:hover{
+background:#316ac5;
+color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="desktop">
+
+<!-- Internet Icon -->
+<div class="icon" style="top:20px;left:20px;" ondblclick="openWindow('internet')">
+<img src="icon.png">
+<div>Internet</div>
+</div>
+
+<!-- Paint Icon -->
+<div class="icon" style="top:120px;left:20px;" ondblclick="openWindow('paint')">
+<img src="icon2.png">
+<div>Paint</div>
+</div>
+
+<!-- My Computer Icon -->
+<div class="icon" style="top:220px;left:20px;" ondblclick="openWindow('computer')">
+<img src="icon3.png">
+<div>My Computer</div>
+</div>
+
+<!-- Internet Window -->
+<div class="window" id="internet" style="top:100px;left:150px;">
+<div class="title-bar" onmousedown="drag(event,this.parentElement)">
+Internet Explorer
+<div class="title-buttons">
+<span onclick="closeWindow('internet')">X</span>
+</div>
+</div>
+<div class="content">
+<iframe src="https://www.youtube.com/embed/vDUYLDtC5Qw" width="100%" height="100%"></iframe>
+</div>
+</div>
+
+<!-- Paint Window -->
+<div class="window" id="paint" style="top:130px;left:180px;">
+<div class="title-bar" onmousedown="drag(event,this.parentElement)">
+Paint
+<div class="title-buttons">
+<span onclick="closeWindow('paint')">X</span>
+</div>
+</div>
+<div class="content">
+<canvas id="paintCanvas" width="480" height="280"></canvas>
+</div>
+</div>
+
+<!-- My Computer Window -->
+<div class="window" id="computer" style="top:160px;left:210px;">
+<div class="title-bar" onmousedown="drag(event,this.parentElement)">
+My Computer
+<div class="title-buttons">
+<span onclick="closeWindow('computer')">X</span>
+</div>
+</div>
+<div class="content">
+📁 Local Disk (C:)<br><br>
+📁 Documents<br><br>
+📁 Pictures
+</div>
+</div>
+
+</div>
+
+<!-- Taskbar -->
+
+<div class="taskbar">
+<div class="start-button" onclick="toggleStart()">Start</div>
+<div class="task-buttons" id="taskButtons"></div>
+<div class="clock" id="clock"></div>
+</div>
+
+<!-- Start Menu -->
+
+<div class="start-menu" id="startMenu">
+<div class="start-header">Admin</div>
+<div class="menu-item" onclick="openWindow('internet')">Internet</div>
+<div class="menu-item" onclick="openWindow('paint')">Paint</div>
+<div class="menu-item" onclick="openWindow('computer')">My Computer</div>
+</div>
+
+<script>
+
+let z=10;
+const taskButtons=document.getElementById("taskButtons");
+
+function openWindow(id){
+const win=document.getElementById(id);
+win.style.display="block";
+win.style.zIndex=++z;
+addTask(id);
+document.getElementById("startMenu").style.display="none";
+}
+
+function closeWindow(id){
+document.getElementById(id).style.display="none";
+removeTask(id);
+}
+
+function addTask(id){
+if(document.getElementById("task-"+id)) return;
+const btn=document.createElement("div");
+btn.className="task-btn";
+btn.id="task-"+id;
+btn.innerText=id;
+btn.onclick=()=>openWindow(id);
+taskButtons.appendChild(btn);
+}
+
+function removeTask(id){
+const btn=document.getElementById("task-"+id);
+if(btn) btn.remove();
+}
+
+function drag(e,win){
+let ox=e.clientX-win.offsetLeft;
+let oy=e.clientY-win.offsetTop;
+function move(ev){
+win.style.left=(ev.clientX-ox)+"px";
+win.style.top=(ev.clientY-oy)+"px";
+win.style.zIndex=++z;
+}
+document.addEventListener("mousemove",move);
+document.addEventListener("mouseup",()=>document.removeEventListener("mousemove",move),{once:true});
+}
+
+function toggleStart(){
+const menu=document.getElementById("startMenu");
+menu.style.display=menu.style.display==="block"?"none":"block";
+}
+
+/* Clock */
+
+setInterval(()=>{
+const now=new Date();
+document.getElementById("clock").innerText=
+now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+},1000);
+
+/* Paint */
+
+const canvas=document.getElementById("paintCanvas");
+const ctx=canvas.getContext("2d");
+let drawing=false;
+
+canvas.addEventListener("mousedown",()=>drawing=true);
+canvas.addEventListener("mouseup",()=>drawing=false);
+canvas.addEventListener("mousemove",e=>{
+if(!drawing) return;
+const rect=canvas.getBoundingClientRect();
+ctx.fillRect(e.clientX-rect.left,e.clientY-rect.top,2,2);
+});
+</script>
+
+</body>
+</html>
