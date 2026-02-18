@@ -249,6 +249,10 @@ document.getElementById(id).style.display="none";
 removeTask(id);
 }
 
+function minimizeWindow(id){
+document.getElementById(id).style.display="none";
+}
+
 function addTask(id){
 if(document.getElementById("task-"+id)) return;
 const btn=document.createElement("div");
@@ -276,13 +280,86 @@ document.addEventListener("mousemove",move);
 document.addEventListener("mouseup",()=>document.removeEventListener("mousemove",move),{once:true});
 }
 
-function toggleStart(){
-const menu=document.getElementById("startMenu");
-menu.style.display=menu.style.display==="block"?"none":"block";
-}
+/* Click to front */
+document.querySelectorAll(".window").forEach(win=>{
+win.addEventListener("mousedown",()=>{
+win.style.zIndex=++z;
+});
+});
+
+/* Desktop selection box */
+const desktop=document.querySelector(".desktop");
+const selectionBox=document.getElementById("selectionBox");
+let selecting=false,startX,startY;
+
+desktop.addEventListener("mousedown",e=>{
+if(!e.target.classList.contains("desktop")) return;
+selecting=true;
+startX=e.clientX;
+startY=e.clientY;
+selectionBox.style.left=startX+"px";
+selectionBox.style.top=startY+"px";
+selectionBox.style.width="0px";
+selectionBox.style.height="0px";
+selectionBox.style.display="block";
+});
+
+desktop.addEventListener("mousemove",e=>{
+if(!selecting) return;
+selectionBox.style.width=Math.abs(e.clientX-startX)+"px";
+selectionBox.style.height=Math.abs(e.clientY-startY)+"px";
+selectionBox.style.left=Math.min(e.clientX,startX)+"px";
+selectionBox.style.top=Math.min(e.clientY,startY)+"px";
+});
+
+desktop.addEventListener("mouseup",()=>{
+selecting=false;
+selectionBox.style.display="none";
+});
+
+/* Icon dragging */
+document.querySelectorAll(".icon").forEach(icon=>{
+let offsetX,offsetY,dragging=false;
+
+icon.addEventListener("mousedown",e=>{
+dragging=true;
+offsetX=e.offsetX;
+offsetY=e.offsetY;
+icon.style.zIndex=++z;
+});
+
+document.addEventListener("mousemove",e=>{
+if(!dragging) return;
+icon.style.left=(e.clientX-offsetX)+"px";
+icon.style.top=(e.clientY-offsetY)+"px";
+});
+
+document.addEventListener("mouseup",()=>{
+dragging=false;
+});
+});
+
+/* Window resizing */
+document.querySelectorAll(".resizer").forEach(resizer=>{
+const win=resizer.parentElement;
+let resizing=false;
+
+resizer.addEventListener("mousedown",()=>{
+resizing=true;
+});
+
+document.addEventListener("mousemove",e=>{
+if(!resizing) return;
+win.style.width=e.clientX-win.offsetLeft+"px";
+win.style.height=e.clientY-win.offsetTop+"px";
+});
+
+document.addEventListener("mouseup",()=>{
+resizing=false;
+});
+});
 
 /* Clock */
-
 setInterval(()=>{
 const now=new Date();
 document.getElementById("clock").innerText=
@@ -290,8 +367,8 @@ now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 },1000);
 
 /* Paint */
-
 const canvas=document.getElementById("paintCanvas");
+if(canvas){
 const ctx=canvas.getContext("2d");
 let drawing=false;
 
@@ -302,10 +379,23 @@ if(!drawing) return;
 const rect=canvas.getBoundingClientRect();
 ctx.fillRect(e.clientX-rect.left,e.clientY-rect.top,2,2);
 });
+}
+
+/* Shutdown */
+function shutdown(){
+document.getElementById("shutdownScreen").style.display="flex";
+setTimeout(()=>{
+document.body.innerHTML="";
+},3000);
+}
+
+</script>
+
 </script>
 
 </body>
 </html>
+
 
 
 
