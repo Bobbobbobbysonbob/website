@@ -9,6 +9,9 @@ body{
 margin:0;
 font-family:Tahoma,Verdana,sans-serif;
 background:linear-gradient(#4fa3ff,#2f7bd6);
+background-size:cover;
+background-position:center;
+background-repeat:no-repeat;
 height:100vh;
 overflow:hidden;
 }
@@ -26,7 +29,6 @@ justify-content:center;
 font-size:26px;
 z-index:9999;
 }
-
 #shutdownScreen{display:none;}
 
 /* Desktop */
@@ -186,54 +188,6 @@ display:none;
 <div>My Computer</div>
 </div>
 
-<!-- Internet -->
-<div class="window" id="internet" style="top:100px;left:150px;">
-<div class="title-bar" onmousedown="drag(event,this.parentElement)">
-Internet Explorer
-<div class="title-buttons">
-<span onclick="minimizeWindow('internet')">_</span>
-<span onclick="maximizeWindow('internet')">☐</span>
-<span onclick="closeWindow('internet')">X</span>
-</div>
-</div>
-<div class="content">
-<iframe src="https://www.youtube.com/embed/GS4TsZXKUm0"
-width="100%" height="100%"></iframe>
-</div>
-</div>
-
-<!-- Paint -->
-<div class="window" id="paint" style="top:130px;left:180px;">
-<div class="title-bar" onmousedown="drag(event,this.parentElement)">
-Paint
-<div class="title-buttons">
-<span onclick="minimizeWindow('paint')">_</span>
-<span onclick="maximizeWindow('paint')">☐</span>
-<span onclick="closeWindow('paint')">X</span>
-</div>
-</div>
-<div class="content">
-<canvas id="paintCanvas" width="480" height="280"></canvas>
-</div>
-</div>
-
-<!-- Computer -->
-<div class="window" id="computer" style="top:160px;left:210px;">
-<div class="title-bar" onmousedown="drag(event,this.parentElement)">
-My Computer
-<div class="title-buttons">
-<span onclick="minimizeWindow('computer')">_</span>
-<span onclick="maximizeWindow('computer')">☐</span>
-<span onclick="closeWindow('computer')">X</span>
-</div>
-</div>
-<div class="content">
-📁 Local Disk (C:)<br><br>
-📁 Documents<br><br>
-📁 Pictures
-</div>
-</div>
-
 </div>
 
 <!-- Taskbar -->
@@ -249,8 +203,12 @@ My Computer
 <div class="menu-item" onclick="openWindow('internet')">Internet</div>
 <div class="menu-item" onclick="openWindow('paint')">Paint</div>
 <div class="menu-item" onclick="openWindow('computer')">My Computer</div>
+<div class="menu-item" onclick="changeWallpaper()">Change Wallpaper</div>
 <div class="menu-item" onclick="shutdown()">Shutdown</div>
 </div>
+
+<!-- Hidden Wallpaper Input -->
+<input type="file" id="wallpaperInput" accept="image/*" style="display:none">
 
 <!-- Clippy -->
 <div id="clippy">
@@ -263,82 +221,36 @@ My Computer
 let z=10;
 const taskButtons=document.getElementById("taskButtons");
 
+/* Load Saved Wallpaper */
+window.addEventListener("load",()=>{
+const saved=localStorage.getItem("wallpaper");
+if(saved){
+document.body.style.backgroundImage=`url('${saved}')`;
+}
+});
+
 /* Boot */
 setTimeout(()=>{
 document.getElementById("bootScreen").style.display="none";
 },2500);
 
-/* Window Functions */
-function openWindow(id){
-const win=document.getElementById(id);
-win.style.display="block";
-win.style.zIndex=++z;
-addTask(id);
+/* Wallpaper */
+function changeWallpaper(){
+document.getElementById("wallpaperInput").click();
 }
 
-function closeWindow(id){
-document.getElementById(id).style.display="none";
-removeTask(id);
-}
+document.getElementById("wallpaperInput").addEventListener("change",function(e){
+const file=e.target.files[0];
+if(!file) return;
 
-function minimizeWindow(id){
-document.getElementById(id).style.display="none";
-}
-
-function maximizeWindow(id){
-const win=document.getElementById(id);
-if(win.dataset.max==="true"){
-win.style.width=win.dataset.w;
-win.style.height=win.dataset.h;
-win.style.left=win.dataset.l;
-win.style.top=win.dataset.t;
-win.dataset.max="false";
-}else{
-win.dataset.w=win.style.width;
-win.dataset.h=win.style.height;
-win.dataset.l=win.style.left;
-win.dataset.t=win.style.top;
-win.style.left="0px";
-win.style.top="0px";
-win.style.width=window.innerWidth+"px";
-win.style.height=(window.innerHeight-36)+"px";
-win.dataset.max="true";
-}
-}
-
-/* Drag */
-function drag(e,win){
-let ox=e.clientX-win.offsetLeft;
-let oy=e.clientY-win.offsetTop;
-function move(ev){
-win.style.left=(ev.clientX-ox)+"px";
-win.style.top=(ev.clientY-oy)+"px";
-win.style.zIndex=++z;
-}
-document.addEventListener("mousemove",move);
-document.addEventListener("mouseup",()=>document.removeEventListener("mousemove",move),{once:true});
-}
-
-/* Taskbar */
-function addTask(id){
-if(document.getElementById("task-"+id)) return;
-const btn=document.createElement("div");
-btn.className="task-btn";
-btn.id="task-"+id;
-btn.innerText=id;
-btn.onclick=()=>openWindow(id);
-taskButtons.appendChild(btn);
-}
-function removeTask(id){
-const btn=document.getElementById("task-"+id);
-if(btn) btn.remove();
-}
-
-/* Start */
-function toggleStart(){
-const menu=document.getElementById("startMenu");
-menu.style.display=menu.style.display==="block"?"none":"block";
-}
+const reader=new FileReader();
+reader.onload=function(event){
+const img=event.target.result;
+localStorage.setItem("wallpaper",img);
+document.body.style.backgroundImage=`url('${img}')`;
+};
+reader.readAsDataURL(file);
+});
 
 /* Clock */
 setInterval(()=>{
@@ -346,18 +258,10 @@ document.getElementById("clock").innerText=
 new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 },1000);
 
-/* Paint */
-const canvas=document.getElementById("paintCanvas");
-if(canvas){
-const ctx=canvas.getContext("2d");
-let drawing=false;
-canvas.addEventListener("mousedown",()=>drawing=true);
-canvas.addEventListener("mouseup",()=>drawing=false);
-canvas.addEventListener("mousemove",e=>{
-if(!drawing) return;
-const rect=canvas.getBoundingClientRect();
-ctx.fillRect(e.clientX-rect.left,e.clientY-rect.top,2,2);
-});
+/* Start */
+function toggleStart(){
+const menu=document.getElementById("startMenu");
+menu.style.display=menu.style.display==="block"?"none":"block";
 }
 
 /* Shutdown */
@@ -369,38 +273,7 @@ screen.innerText="It is now safe to turn off your computer.";
 },3000);
 }
 
-/* Clippy */
-const clippy=document.getElementById("clippy");
-const bubble=document.getElementById("clippyBubble");
-const tips=[
-"It looks like you're coding all night buddy...",
-"Need help merging more features?",
-"Have you tried turning it off and on again? No? Dumbass.",
-"Your OS is getting powerful...",
-"Should we add Minesweeper next? Nah too hard."
-];
-
-clippy.addEventListener("click",()=>{
-bubble.style.display="block";
-bubble.innerText=tips[Math.floor(Math.random()*tips.length)];
-});
-
-let dragging=false,ox,oy;
-clippy.addEventListener("mousedown",e=>{
-dragging=true;
-ox=e.offsetX; oy=e.offsetY;
-});
-document.addEventListener("mousemove",e=>{
-if(!dragging) return;
-clippy.style.left=(e.clientX-ox)+"px";
-clippy.style.top=(e.clientY-oy)+"px";
-clippy.style.bottom="auto";
-clippy.style.right="auto";
-});
-document.addEventListener("mouseup",()=>dragging=false);
-
 </script>
 
 </body>
 </html>
-
