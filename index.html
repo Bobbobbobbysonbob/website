@@ -207,8 +207,6 @@ display:none;
 <div class="menu-item" onclick="shutdown()">Shutdown</div>
 </div>
 
-<!-- Hidden Wallpaper Input -->
-<input type="file" id="wallpaperInput" accept="image/*" style="display:none">
 
 <!-- Clippy -->
 <div id="clippy">
@@ -221,23 +219,11 @@ display:none;
 let z=10;
 const taskButtons=document.getElementById("taskButtons");
 
-/* Load Saved Wallpaper */
-window.addEventListener("load",()=>{
-const saved=localStorage.getItem("wallpaper");
-if(saved){
-document.body.style.backgroundImage=`url('${saved}')`;
-}
-});
-
 /* Boot */
 setTimeout(()=>{
 document.getElementById("bootScreen").style.display="none";
 },2500);
 
-/* Wallpaper */
-function changeWallpaper(){
-document.getElementById("wallpaperInput").click();
-}
 
 document.getElementById("wallpaperInput").addEventListener("change",function(e){
 const file=e.target.files[0];
@@ -277,3 +263,4 @@ screen.innerText="It is now safe to turn off your computer.";
 
 </body>
 </html>
+
