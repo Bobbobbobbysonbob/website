@@ -139,53 +139,6 @@ cursor:pointer;
 background:#316ac5;
 color:white;
 }
-
-/* Clippy */
-#clippy{
-position:fixed;
-bottom:60px;
-right:20px;
-width:120px;
-cursor:grab;
-z-index:10000;
-}
-#clippy img{width:100px;}
-#clippyBubble{
-background:white;
-border:2px solid black;
-padding:8px;
-font-size:12px;
-position:absolute;
-bottom:110px;
-right:0;
-width:180px;
-display:none;
-}
-</style>
-</head>
-
-<body>
-
-<div id="bootScreen">Booting Windows...</div>
-<div id="shutdownScreen">Windows is shutting down...</div>
-
-<div class="desktop">
-
-<div class="icon" style="top:20px;left:20px;" ondblclick="openWindow('internet')">
-<img src="icon.png">
-<div>Internet</div>
-</div>
-
-<div class="icon" style="top:120px;left:20px;" ondblclick="openWindow('paint')">
-<img src="icon2.png">
-<div>Paint</div>
-</div>
-
-<div class="icon" style="top:220px;left:20px;" ondblclick="openWindow('computer')">
-<img src="icon3.png">
-<div>My Computer</div>
-</div>
-
 <!-- Internet -->
 <div class="window" id="internet" style="top:100px;left:150px;">
 <div class="title-bar" onmousedown="drag(event,this.parentElement)">
@@ -403,3 +356,4 @@ document.addEventListener("mouseup",()=>dragging=false);
 
 </body>
 </html>
+
